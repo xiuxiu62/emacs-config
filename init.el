@@ -12,15 +12,15 @@
       mouse-wheel-progressive-speed nil)
 
 (defvar minibuffer-eldef-shorten-default t) ;; Remember the last minibuffer input
-(defvar recentf-max-menu-items 25)
-(defvar recentf-max-saved-items 25)
+;; (defvar recentf-max-menu-items 25)
+;; (defvar recentf-max-saved-items 25)
 
 ;; Save minibuffer history
 (savehist-mode 1) ;; TODO: maybe remove
 
 ;; Keep track of recently opened files
-(recentf-mode 1) ;; TODO: maybe remove
-(global-set-key "\C-x\ \C-r" 'recentf-open-files)
+;; (recentf-mode 1) ;; TODO: maybe remove
+;; (global-set-key "\C-x\ \C-r" 'recentf-open-files)
 
 ;; Disable default ui
 (menu-bar-mode 0)
@@ -29,40 +29,47 @@
 
 (global-display-line-numbers-mode 1)
 
-(load-theme 'deeper-blue t)
+(load-theme 'modus-vivendi t)
 
 ;; Font options
 (set-face-attribute 'default nil :height 115)
 
 ;; Window options
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
-(set-frame-parameter (selected-frame) 'alpha '(90 . 80))
-(add-to-list 'default-frame-alist '(alpha . (90 . 80)))
+(set-frame-parameter (selected-frame) 'alpha '(80 . 70))
+(add-to-list 'default-frame-alist '(alpha . (80 . 70)))
 
 ;; Package manager bootstrap
 (let ((bootstrap-file
        (expand-file-name
-        "straight/repos/straight.el/bootstrap.el"
-        (or (bound-and-true-p straight-base-dir)
-            user-emacs-directory)))
+	"straight/repos/straight.el/bootstrap.el"
+	(or (bound-and-true-p straight-base-dir)
+	    user-emacs-directory)))
       (bootstrap-version 7))
   (unless (file-exists-p bootstrap-file)
     (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
+	(url-retrieve-synchronously
+	 "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+	 'silent 'inhibit-cookies)
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
-    (straight-use-package 'use-package)
+(straight-use-package 'use-package)
 
 ;; temporary until config is good enough to turn this off
 (defvar init-file-path
   (pcase system-type
     ('windows-nt "C:/Users/jacre/AppData/Roaming/.emacs.d/init.el")
-    ('gnu/linux "/home/xiuxiu/.config/.emacs.d/init.el")
+    ('gnu/linux "/home/xiuxiu/.emacs.d/init.el")
     (_ "")))
 (add-hook 'emacs-startup-hook (lambda () (find-file init-file-path)))
+
+(use-package auto-compile
+  :straight t
+  :ensure t
+  :config
+  (auto-compile-on-load-mode)
+  (auto-compile-on-save-mode))
 
 (use-package which-key
   :straight t
@@ -138,8 +145,8 @@
   :config
   ;; Hide the mode line of the Embark live/completions buffers
   (add-to-list 'display-buffer-alist
-               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
-                 nil
+	       '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+		 nil
 		 (window-parameters (mode-line-format . none)))))
 
 (use-package embark-consult
@@ -157,14 +164,14 @@
   (completion-styles '(orderless basic))
   (completion--category-override '((file (styles . (partial-completion))))))
 
-;; Company for auto-completion
+;; Minibuffer auto-completion
 (use-package company
   :straight t
   :hook (emacs-lisp-mode . company-mode)
   :bind ("<tab>" . company-indent-or-complete-common)
   :config
   (setq company-idle-delay 0.1
-        company-minimum-prefix-length 1))
+	company-minimum-prefix-length 1))
 
 (use-package eldoc
   :straight t
@@ -201,8 +208,8 @@
   :init
   (setq lsp-keymap-prefix "C-c l")
   :hook ((python-mode . lsp)
-         (rust-mode . lsp)
-         (js-mode . lsp))
+	 (rust-mode . lsp)
+	 (js-mode . lsp))
   :commands lsp)
 
 (use-package lsp-ui
@@ -214,6 +221,50 @@
   :straight t
   :config
   (apheleia-global-mode +1))
+
+(use-package projectile
+  :straight t
+  :ensure t
+  ;; :init (projectile-mode +1)
+  :config
+  (setq projectile-completion-system 'default
+	projectile-indexing-method 'alien
+	projectile-enable-caching t
+	projectile-sort-order 'recently-active)
+  ;; Globally ignore these entries
+  (dolist (dir '("node_modules" "target" "build" ".venv" ".DS_Store"))
+    (add-to-list 'projectile-globally-ignored-directories dir))
+
+  (evil-leader/set-key
+    "pp" 'projectile-switch-project
+    "pf" 'projectile-find-file
+    "pb" 'projectile-switch-to-buffer
+    "pk" 'projectile-kill-buffers
+    "pc" 'projectile-compile-project
+    "pt" 'projectile-test-project))
+
+(use-package doom-modeline
+  :straight t
+  :ensure t
+  :init (doom-modeline-mode 1)
+  :config
+  (doom-modeline-def-segment project
+    (when (and (bound-and-true-p projectile-mode)
+	       (projectile-project-p))
+      (format " Proj[%s]" (projectile-project-name))))
+  (doom-modeline-def-modeline 'xiu/modeline
+    '(bar matches buffer-info remote-host project)
+    '(misc-info minor-modes input-method buffer-encoding major-mode process vcs))
+  (setq doom-modeline-mode-line 'xiu/modeline))
+
+(use-package magit
+  :straight t
+  :ensure t
+  :bind (("C-x g" . magit-status)
+	 ("C-x M-g" . magit-dispatch))
+  :config
+  (global-git-commit-mode)
+  (setq magit-diff-refine-hunk t))
 
 ;; Evaluate buffer and reload init file
 (defun reload-init-file ()
