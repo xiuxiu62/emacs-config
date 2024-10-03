@@ -19,7 +19,6 @@
       mouse-wheel-scroll-amount '(3 ((shift) . 1))  ;; Scroll slower when shift is held
       mouse-wheel-progressive-speed nil)
 
-
 (electric-pair-mode 1) ;; auto close parens
 (show-paren-mode 1)    ;; show matching paren
 (ido-mode 1)           ;; better buffer and file switching
@@ -28,15 +27,15 @@
 (add-hook 'prog-mode-hook 'flymake-mode)
 
 (defvar minibuffer-eldef-shorten-default t) ;; Remember the last minibuffer input
-(defvar recentf-max-menu-items 25)
-(defvar recentf-max-saved-items 25)
+;; (defvar recentf-max-menu-items 25)
+;; (defvar recentf-max-saved-items 25)
 
 ;; Save minibuffer history
 (savehist-mode 1) ;; TODO: maybe remove
 
 ;; Keep track of recently opened files
-(recentf-mode 1) ;; TODO: maybe remove
-(global-set-key "\C-x\ \C-r" 'recentf-open-files)
+;; (recentf-mode 1) ;; TODO: maybe remove
+;; (global-set-key "\C-x\ \C-r" 'recentf-open-files)
 
 ;; Disable default ui
 (menu-bar-mode 0)
@@ -45,15 +44,15 @@
 
 (global-display-line-numbers-mode 1)
 
-(load-theme 'deeper-blue t)
+(load-theme 'modus-vivendi t)
 
 ;; Font options
 (set-face-attribute 'default nil :height 115)
 
 ;; Window options
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
-(set-frame-parameter (selected-frame) 'alpha '(90 . 80))
-(add-to-list 'default-frame-alist '(alpha . (90 . 80)))
+(set-frame-parameter (selected-frame) 'alpha '(80 . 70))
+(add-to-list 'default-frame-alist '(alpha . (80 . 70)))
 
 (require 'package)
 (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
