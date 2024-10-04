@@ -7,7 +7,7 @@
 (defvar init-file-path
   (pcase system-type
     ('windows-nt "C:/Users/jacre/AppData/Roaming/.emacs.d/init.el")
-    ('gnu/linux "/home/xiuxiu/.config/.emacs.d/init.el")
+    ('gnu/linux "/home/xiuxiu/.emacs.d/init.el")
     (_ "")))
 (add-hook 'emacs-startup-hook (lambda () (find-file init-file-path)))
 
@@ -17,7 +17,9 @@
       auto-save-default nil               ;; Disable auto save files
       history-length 25                   ;; Set minibuffer history size
       mouse-wheel-scroll-amount '(3 ((shift) . 1))  ;; Scroll slower when shift is held
-      mouse-wheel-progressive-speed nil)
+      mouse-wheel-progressive-speed nil
+      display-line-numbers 'relative
+      custom-file (make-temp-file "emacs-custom"))
 
 (electric-pair-mode 1) ;; auto close parens
 (show-paren-mode 1)    ;; show matching paren
@@ -42,17 +44,43 @@
 (tool-bar-mode 0)
 (scroll-bar-mode 0)
 
-(global-display-line-numbers-mode 1)
-
 (load-theme 'modus-vivendi t)
 
 ;; Font options
-(set-face-attribute 'default nil :height 115)
+(set-face-attribute 'default nil :height 105)
 
 ;; Window options
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 (set-frame-parameter (selected-frame) 'alpha '(80 . 70))
 (add-to-list 'default-frame-alist '(alpha . (80 . 70)))
+
+(column-number-mode 1)
+(display-battery-mode 0)
+
+(set-face-attribute 'mode-line nil
+		    :background "#dd44dd"
+		    :foreground "black"
+		    :height 110
+		    :box `(:line-width (-1 . 2) :color "#dd44dd"))
+
+(setq-default mode-line-format
+      '("%e"
+	mode-line-front-space
+	mode-line-buffer-identification
+	mode-line-modified
+	"  "
+	mode-line-position
+	vc-mode
+	"  "
+ 	mode-line-modes
+	mode-line-misc-info
+	mode-line-end-spaces))
+
+;; (defun buffer-postion ()
+;;   "Formats the current line and column."
+;;  (format "(%d, %d)"
+;; 	  (line-number-at-pos)
+;; 	  (current-column)))
 
 (require 'package)
 (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
@@ -62,31 +90,38 @@
 (when (not package-archive-contents)
   (package-refresh-contents))
 
-(defun install (package)
+(defmacro install (&rest packages)
   "Install a package if it isn't already installed."
-  (unless (package-installed-p package)
-    (package-install package)))
-
-(defun install-many (packages)
-  "Installs packages they aren't already installed."
-  (mapc #'install packages))
+  `(mapc (lambda (package)
+	   (unless (package-installed-p package)
+	     (package-install package)))
+	 ',packages))
 
 (defmacro config (package &rest body)
   "Configure a package after it's loaded."
   `(with-eval-after-load 'package
      ,@body))
 
-(install-many '(which-key
-		evil
-		evil-collection))
+(install
+ which-key
+ evil
+ evil-collection)
 
-(with-eval-after-load 'which-key
-  '(which-key-mode 1))
+(config which-key
+	(which-key-mode 1))
 
 (config evil
 	(setq evil-want-integration t
 	      evil-want-keybinding nil)
 	(evil-mode 1))
+
+;; (require 'eglot)
+(config eglot
+	(add-hook 'python-mode-hook 'elgot-ensure)
+	(add-hook 'rust-mode-hook 'elgot-ensure)
+	(setq
+	 eglot-autoshutdown 1
+	 eglot-confirm-server-initiated-edits nil))
 
 ;; Evaluate buffer and reload init file
 (defun reload-init-file ()
