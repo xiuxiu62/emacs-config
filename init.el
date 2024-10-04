@@ -36,7 +36,6 @@
       display-line-numbers 'relative
       custom-file (make-temp-file "emacs-custom"))
 
-
 (add-hook 'prog-mode-hook 'flymake-mode)
 
 (defvar minibuffer-eldef-shorten-default t) ;; Remember the last minibuffer input
@@ -49,10 +48,10 @@
 
 (load-theme 'modus-vivendi t)
 
-;; Font options
+;; Font
 (set-face-attribute 'default nil :height 110)
 
-;; Window options
+;; Window
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 (set-frame-parameter (selected-frame) 'alpha '(80 . 70))
 (add-to-list 'default-frame-alist '(alpha . (80 . 70)))
@@ -87,8 +86,7 @@
 
 (defmacro config (package &rest body)
   "Configure a package after it's loaded."
-  `(with-eval-after-load 'package
-     ,@body))
+  `(with-eval-after-load 'package ,@body))
 
 (install which-key
 	 general
@@ -119,24 +117,33 @@
 
 (leader
   :keymaps 'normal
-  "f" '(:ignore t :wk "file")
-  "ff" '(find-file :wk "find")
-  "x" '(execute-extended-command :wk "commands")
   ";" 'evil-commentary-line
   :keymaps 'visual
   ";" 'evil-commentary-line
   :keymaps 'emacs
   "e" '(:ignore t :wk "eval")
   "eb" '(eval-buffer :wk "buffer")
-  "ee" '(eval-last-sexp :wk "last"))
-
+  "ee" '(eval-last-sexp :wk "last")
+  "f" '(:ignore t :wk "file")
+  "ff" '(find-file :wk "find")
+  "x" '(execute-extended-command :wk "commands")
+  "w" '(:ignore t :wk "window")
+  "wh" '(windmove-left :wk "left")
+  "wj" '(windmove-down :wk "down")
+  "wk" '(windmove-up :wk "up")
+  "wl" '(windmove-right :wk "right")
+  "ws" '(:ignore t :wk "split")
+  "wsh" '(split-window-horizontally :wk "horizontal")
+  "wsv" '(split-window-vertically :wk "vertical")
+  "wd" '(:ignore t :wk "delete")
+  "wdd" '(delete-window :wk "active")
+  "wdo" '(delete-other-windows :wk "others"))
 
 (config eglot
 	(add-hook 'python-mode-hook 'elgot-ensure)
 	(add-hook 'rust-mode-hook 'elgot-ensure)
-	(setq
-	 eglot-autoshutdown 1
-	 eglot-confirm-server-initiated-edits nil))
+	(setq eglot-autoshutdown 1
+	      eglot-confirm-server-initiated-edits nil))
 
 ;; Evaluate buffer and reload init file
 (defun reload-init-file ()
