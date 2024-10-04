@@ -33,7 +33,9 @@
       display-line-numbers-type 'relative
       mouse-wheel-scroll-amount '(3 ((shift) . 1))  ;; Scroll slower when shift is held
       mouse-wheel-progressive-speed nil
+      display-line-numbers 'relative
       custom-file (make-temp-file "emacs-custom"))
+
 
 (add-hook 'prog-mode-hook 'flymake-mode)
 
@@ -54,14 +56,6 @@
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 (set-frame-parameter (selected-frame) 'alpha '(80 . 70))
 (add-to-list 'default-frame-alist '(alpha . (80 . 70)))
-
-
-(set-face-attribute 'mode-line nil
-		    ;; :background "#dd44dd"
-		    :background "#772277"
-		    :foreground "white"
-		    :height 120
-		    :box `(:line-width (-1 . 2) :color "#772277"))
 
 (setq-default mode-line-format
       '("%e"
@@ -136,7 +130,7 @@
   "eb" '(eval-buffer :wk "buffer")
   "ee" '(eval-last-sexp :wk "last"))
 
-;; (require 'eglot)
+
 (config eglot
 	(add-hook 'python-mode-hook 'elgot-ensure)
 	(add-hook 'rust-mode-hook 'elgot-ensure)
